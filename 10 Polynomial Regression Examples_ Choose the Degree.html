@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>10 Polynomial Regression Examples: Choose the Degree</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--tx:#1a2133;--mu:#586177;--ac:#2f5bea;--ac2:#e6ecfe;--ok:#12805c;--bad:#c4321f;--bd:#d9deea;--code:#0f1729;--ct:#e6edf7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1320;--card:#161d2e;--tx:#eef1f8;--mu:#a0aac0;--ac:#7b9cff;--ac2:#1e2947;--ok:#4cd1a0;--bad:#ff7f6b;--bd:#2a3350;--code:#080b14}}
+:root[data-theme="dark"]{--bg:#0e1320;--card:#161d2e;--tx:#eef1f8;--mu:#a0aac0;--ac:#7b9cff;--ac2:#1e2947;--ok:#4cd1a0;--bad:#ff7f6b;--bd:#2a3350;--code:#080b14}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(26px,4.5vw,40px);line-height:1.2;margin:18px 0 6px}
+h2{font-size:1.35rem;margin:0}
+.mu{color:var(--mu)}
+.how{background:var(--ac2);border-radius:12px;padding:12px 16px;margin:14px 0}
+.how ol{margin:6px 0 0;padding-left:20px}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.nav a{display:inline-block;min-width:38px;text-align:center;padding:4px 10px;border-radius:999px;background:var(--card);border:1px solid var(--bd);color:var(--ac);text-decoration:none;font-weight:700}
+.nav a:hover{background:var(--ac);color:#fff}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin:20px 0}
+.hd{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.no{background:var(--ac);color:#fff;border-radius:999px;min-width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.chip{font-size:.78rem;background:var(--ac2);color:var(--ac);border-radius:999px;padding:2px 10px;font-weight:600}
+.lb{font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);font-weight:700;margin:12px 0 2px}
+.task{background:var(--ac2);border-left:5px solid var(--ac);border-radius:8px;padding:8px 12px;margin:10px 0}
+.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start}
+@media (max-width:760px){.g{grid-template-columns:1fr}}
+.tb{max-height:280px;overflow:auto;border:1px solid var(--bd);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--bd)}
+th{position:sticky;top:0;background:var(--ac2)}
+svg{width:100%;height:auto;display:block}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+button{font:inherit;font-weight:600;border:1px solid var(--ac);background:var(--ac2);color:var(--ac);border-radius:10px;padding:8px 16px;cursor:pointer;min-height:42px}
+button:hover,button.on{background:var(--ac);color:#fff}
+.hid{display:none;margin-top:10px}
+.hid.show{display:block}
+pre{background:var(--code);color:var(--ct);border-radius:12px;padding:14px;overflow:auto;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:8px 0;max-height:520px}
+.ans{background:rgba(18,128,92,.12);border-left:5px solid var(--ok);border-radius:8px;padding:10px 14px}
+.cp{min-height:34px;padding:4px 12px;font-size:.9rem}
+.leg{font-size:.8rem;color:var(--mu);margin:2px 0 0}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>10 Polynomial Regression Examples<br><span style="font-size:.6em" class="mu">Check linear, split, choose the degree, see the result</span></h1>
+<div class="how"><b>How to use this page</b>
+<ol>
+<li>Read the business problem and look at the dataset and the graph.</li>
+<li>Decide: is it a straight line or a curve? Guess the degree.</li>
+<li>Press <b>Show code</b> to get the Colab code (Copy, then paste into Google Colab and run).</li>
+<li>Press <b>Show expected result</b> to compare your guess with the answer.</li>
+</ol></div>
+<div class="nav" id="nav"></div>
+<div id="list"></div>
+<p class="mu" style="font-size:.85rem">Every code block has its own dataset inside, so it runs in Colab without uploading any file. Steps in each code: 1 load data, 2 check the graph, 3 X and y, 4 train/test split, 5 select the degree (GridSearchCV), 6 result.</p>
+</div>
+<script>
+var D=[{"id": 1, "title": "Fuel Mileage vs Speed", "problem": "A delivery company wants to cut its diesel bill. Mileage depends on driving speed, but nobody knows the best speed.", "task": "Find the speed that gives the best mileage.", "xn": "speed", "yn": "mileage", "xl": "Speed (km/h)", "yl": "Mileage (km/l)", "note": "Rises, peaks, then falls", "csv": "speed,mileage\n27.7,43.6\n41.3,50.2\n92.1,34.0\n72.4,47.9\n28.5,45.5\n59.0,52.4\n63.1,46.3\n34.4,49.8\n86.1,36.6\n30.2,43.8\n55.2,52.3\n66.5,50.5\n58.8,50.8\n72.8,45.2\n86.4,37.8\n106.1,16.8\n45.6,53.6\n78.4,44.8\n82.7,41.0\n46.3,53.3\n20.1,39.5\n107.6,13.5\n46.9,52.6\n48.3,52.7\n100.3,23.7\n72.7,45.7\n62.4,51.0\n89.6,31.3\n22.7,42.8\n83.6,40.7\n", "deg": 2, "r2": 0.99, "lin": 0.37, "curve": [[20.1, 39.96], [22.34, 41.6], [24.59, 43.11], [26.83, 44.51], [29.07, 45.78], [31.32, 46.93], [33.56, 47.97], [35.81, 48.88], [38.05, 49.67], [40.29, 50.34], [42.54, 50.89], [44.78, 51.32], [47.02, 51.63], [49.27, 51.81], [51.51, 51.88], [53.75, 51.82], [56.0, 51.65], [58.24, 51.35], [60.48, 50.93], [62.73, 50.39], [64.97, 49.74], [67.22, 48.96], [69.46, 48.05], [71.7, 47.03], [73.95, 45.89], [76.19, 44.63], [78.43, 43.24], [80.68, 41.74], [82.92, 40.11], [85.16, 38.36], [87.41, 36.5], [89.65, 34.51], [91.89, 32.4], [94.14, 30.17], [96.38, 27.82], [98.63, 25.34], [100.87, 22.75], [103.11, 20.04], [105.36, 17.2], [107.6, 14.25]]}, {"id": 2, "title": "Advertising Spend vs Sales", "problem": "A shop owner increases the advertising budget every month. At first sales jump, but later extra ads give little extra sales.", "task": "How much ad spend is enough?", "xn": "ad_spend", "yn": "sales", "xl": "Ad spend (Rs. lakh)", "yl": "Sales (Rs. lakh)", "note": "Rises, then flattens and falls", "csv": "ad_spend,sales\n18.9,64.2\n10.2,76.1\n19.5,57.8\n1.6,36.6\n12.1,78.2\n7.5,70.9\n16.0,77.2\n3.5,44.2\n17.4,68.1\n10.9,75.9\n18.0,70.7\n9.5,76.6\n8.6,69.4\n15.8,73.0\n19.7,59.2\n7.4,65.7\n19.4,62.3\n18.6,66.0\n3.6,53.7\n12.2,76.2\n14.1,76.5\n18.9,66.6\n13.3,74.9\n2.7,40.4\n10.0,75.0\n9.9,77.1\n10.0,71.1\n19.2,68.0\n7.0,64.8\n4.5,53.8\n", "deg": 2, "r2": 0.93, "lin": -1.37, "curve": [[1.6, 34.88], [2.06, 38.35], [2.53, 41.66], [2.99, 44.83], [3.46, 47.85], [3.92, 50.72], [4.38, 53.45], [4.85, 56.02], [5.31, 58.46], [5.78, 60.74], [6.24, 62.88], [6.71, 64.87], [7.17, 66.71], [7.63, 68.41], [8.1, 69.96], [8.56, 71.36], [9.03, 72.61], [9.49, 73.72], [9.95, 74.68], [10.42, 75.5], [10.88, 76.16], [11.35, 76.68], [11.81, 77.05], [12.27, 77.28], [12.74, 77.36], [13.2, 77.29], [13.67, 77.07], [14.13, 76.71], [14.59, 76.2], [15.06, 75.54], [15.52, 74.74], [15.99, 73.78], [16.45, 72.69], [16.92, 71.44], [17.38, 70.05], [17.84, 68.51], [18.31, 66.82], [18.77, 64.98], [19.24, 63.0], [19.7, 60.87]]}, {"id": 3, "title": "Training Hours vs Employee Score", "problem": "A company trains new staff. Progress is slow in the first hours, fast in the middle, and slow again near the end.", "task": "Predict the performance score for any number of training hours.", "xn": "training_hours", "yn": "score", "xl": "Training hours", "yl": "Performance score", "note": "S-shaped curve", "csv": "training_hours,score\n37.7,88.8\n20.5,56.5\n39.0,87.7\n3.2,22.8\n24.3,66.4\n15.1,43.8\n32.1,84.3\n7.0,24.2\n34.9,85.6\n21.8,59.3\n36.1,89.2\n19.1,53.9\n17.2,46.7\n31.6,81.1\n39.4,88.8\n14.8,40.8\n38.8,89.4\n37.2,88.8\n7.1,28.9\n24.4,65.5\n28.2,74.9\n37.7,90.0\n26.6,70.3\n5.3,22.9\n19.9,54.8\n19.7,55.5\n20.0,53.0\n38.3,91.7\n14.0,39.2\n9.0,29.2\n", "deg": 3, "r2": 0.99, "lin": 0.9, "curve": [[3.2, 22.21], [4.13, 22.9], [5.06, 23.77], [5.98, 24.82], [6.91, 26.04], [7.84, 27.42], [8.77, 28.94], [9.7, 30.6], [10.63, 32.38], [11.55, 34.27], [12.48, 36.27], [13.41, 38.36], [14.34, 40.53], [15.27, 42.77], [16.19, 45.06], [17.12, 47.41], [18.05, 49.79], [18.98, 52.2], [19.91, 54.62], [20.84, 57.05], [21.76, 59.46], [22.69, 61.86], [23.62, 64.24], [24.55, 66.57], [25.48, 68.85], [26.41, 71.07], [27.33, 73.21], [28.26, 75.27], [29.19, 77.24], [30.12, 79.1], [31.05, 80.85], [31.97, 82.47], [32.9, 83.95], [33.83, 85.28], [34.76, 86.45], [35.69, 87.45], [36.62, 88.26], [37.54, 88.89], [38.47, 89.3], [39.4, 89.51]]}, {"id": 4, "title": "Ice-cream Sales vs Temperature", "problem": "An ice-cream seller notices that sales grow faster and faster as the weather gets hotter.", "task": "How many ice-creams should be stocked at a given temperature?", "xn": "temperature", "yn": "ice_cream_sold", "xl": "Temperature (C)", "yl": "Ice-creams sold", "note": "Curve bending upward", "csv": "temperature,ice_cream_sold\n22.8,79.7\n24.0,80.0\n39.4,257.3\n17.8,52.3\n33.0,164.4\n36.9,213.2\n20.6,56.6\n16.7,49.8\n23.2,62.6\n34.7,178.6\n31.9,152.0\n19.5,70.6\n28.0,103.2\n35.1,176.4\n27.7,102.5\n34.0,183.6\n44.0,317.0\n35.5,205.7\n26.7,81.4\n20.6,69.5\n25.4,99.5\n30.3,119.2\n41.7,283.3\n38.3,241.9\n24.5,83.8\n42.7,307.8\n29.1,145.2\n35.8,199.3\n18.2,44.1\n18.1,38.8\n", "deg": 2, "r2": 0.95, "lin": 0.79, "curve": [[16.7, 44.69], [17.4, 46.79], [18.1, 49.15], [18.8, 51.79], [19.5, 54.69], [20.2, 57.86], [20.9, 61.3], [21.6, 65.01], [22.3, 68.99], [23.0, 73.24], [23.7, 77.76], [24.4, 82.55], [25.1, 87.6], [25.8, 92.93], [26.5, 98.52], [27.2, 104.39], [27.9, 110.52], [28.6, 116.92], [29.3, 123.59], [30.0, 130.53], [30.7, 137.74], [31.4, 145.22], [32.1, 152.97], [32.8, 160.98], [33.5, 169.27], [34.2, 177.82], [34.9, 186.64], [35.6, 195.74], [36.3, 205.1], [37.0, 214.73], [37.7, 224.63], [38.4, 234.8], [39.1, 245.23], [39.8, 255.94], [40.5, 266.92], [41.2, 278.16], [41.9, 289.67], [42.6, 301.46], [43.3, 313.51], [44.0, 325.83]]}, {"id": 5, "title": "Car Age vs Resale Price", "problem": "A used-car dealer wants to price cars fairly. A car loses value quickly in the first years and slowly later.", "task": "Predict the resale price from the age of the car.", "xn": "car_age", "yn": "resale_price", "xl": "Car age (years)", "yl": "Resale price (Rs. lakh)", "note": "Fast fall, then slow fall", "csv": "car_age,resale_price\n6.1,3.5\n11.4,1.8\n1.7,8.2\n11.4,1.1\n3.7,6.2\n5.1,4.5\n9.9,1.8\n4.9,4.4\n6.6,2.8\n0.3,11.3\n9.0,2.0\n6.5,3.0\n4.0,5.3\n9.5,1.8\n3.6,5.6\n5.4,4.0\n1.6,8.7\n4.8,4.6\n2.4,7.2\n3.1,6.5\n9.0,2.2\n3.4,6.2\n5.8,3.5\n11.8,1.3\n11.5,1.1\n8.7,2.3\n6.5,3.0\n3.3,6.4\n1.9,8.2\n11.6,0.9\n", "deg": 3, "r2": 0.99, "lin": 0.94, "curve": [[0.3, 11.18], [0.59, 10.57], [0.89, 9.99], [1.18, 9.44], [1.48, 8.91], [1.77, 8.41], [2.07, 7.93], [2.36, 7.47], [2.66, 7.04], [2.95, 6.63], [3.25, 6.24], [3.54, 5.87], [3.84, 5.53], [4.13, 5.2], [4.43, 4.89], [4.72, 4.59], [5.02, 4.32], [5.31, 4.06], [5.61, 3.82], [5.9, 3.59], [6.2, 3.38], [6.49, 3.18], [6.79, 3.0], [7.08, 2.82], [7.38, 2.66], [7.67, 2.51], [7.97, 2.37], [8.26, 2.24], [8.56, 2.12], [8.85, 2.01], [9.15, 1.91], [9.44, 1.81], [9.74, 1.72], [10.03, 1.63], [10.33, 1.55], [10.62, 1.47], [10.92, 1.4], [11.21, 1.33], [11.51, 1.26], [11.8, 1.2]]}, {"id": 6, "title": "Delivery Distance vs Cost", "problem": "A courier company charges a base fee plus a fixed rate per kilometre. The manager wants a quick cost estimate.", "task": "Check the graph first. Is a polynomial really needed here?", "xn": "distance_km", "yn": "delivery_cost", "xl": "Distance (km)", "yl": "Cost (Rs.)", "note": "Straight line (linear)", "csv": "distance_km,delivery_cost\n11.2,187.1\n12.6,193.6\n32.8,449.2\n4.6,105.9\n24.4,336.0\n29.4,397.2\n8.3,137.4\n3.2,90.8\n11.7,163.7\n26.6,353.4\n22.9,318.8\n6.9,149.3\n17.9,243.0\n27.1,349.0\n17.5,241.4\n25.7,362.9\n38.7,501.2\n27.6,391.5\n16.3,207.2\n8.3,156.6\n14.5,229.4\n20.9,269.9\n35.8,471.4\n31.2,433.2\n13.4,202.2\n37.0,499.5\n19.4,308.0\n28.1,380.8\n5.2,98.0\n5.1,89.4\n", "deg": 1, "r2": 0.96, "lin": 0.96, "curve": [[3.2, 79.82], [4.11, 90.84], [5.02, 101.87], [5.93, 112.89], [6.84, 123.92], [7.75, 134.94], [8.66, 145.97], [9.57, 156.99], [10.48, 168.02], [11.39, 179.04], [12.3, 190.06], [13.21, 201.09], [14.12, 212.11], [15.03, 223.14], [15.94, 234.16], [16.85, 245.19], [17.76, 256.21], [18.67, 267.24], [19.58, 278.26], [20.49, 289.29], [21.41, 300.31], [22.32, 311.34], [23.23, 322.36], [24.14, 333.38], [25.05, 344.41], [25.96, 355.43], [26.87, 366.46], [27.78, 377.48], [28.69, 388.51], [29.6, 399.53], [30.51, 410.56], [31.42, 421.58], [32.33, 432.61], [33.24, 443.63], [34.15, 454.66], [35.06, 465.68], [35.97, 476.7], [36.88, 487.73], [37.79, 498.75], [38.7, 509.78]]}, {"id": 7, "title": "Website Users vs Response Time", "problem": "An online store is worried: the server becomes slower and slower as more users visit at the same time.", "task": "Predict the response time at a busy hour.", "xn": "users", "yn": "response_ms", "xl": "Users at the same time", "yl": "Response time (ms)", "note": "Curve bending upward", "csv": "users,response_ms\n335.5,151.7\n368.6,155.4\n832.8,386.1\n182.7,119.1\n640.1,265.6\n755.7,330.7\n269.1,127.6\n149.6,115.9\n347.5,139.3\n691.7,288.0\n606.0,248.9\n235.1,136.5\n489.4,189.7\n702.4,288.7\n480.5,187.8\n669.9,287.2\n970.7,475.0\n714.8,314.9\n452.5,166.9\n268.5,137.9\n411.4,176.0\n560.0,214.1\n902.1,426.7\n798.0,364.5\n386.3,160.4\n931.8,455.3\n523.8,228.8\n724.4,312.1\n196.5,113.2\n194.1,108.9\n", "deg": 2, "r2": 0.98, "lin": 0.82, "curve": [[149.6, 111.65], [170.65, 114.06], [191.71, 116.84], [212.76, 120.0], [233.82, 123.52], [254.87, 127.42], [275.92, 131.7], [296.98, 136.35], [318.03, 141.37], [339.08, 146.76], [360.14, 152.53], [381.19, 158.67], [402.25, 165.18], [423.3, 172.07], [444.35, 179.33], [465.41, 186.96], [486.46, 194.97], [507.52, 203.35], [528.57, 212.11], [549.62, 221.23], [570.68, 230.73], [591.73, 240.61], [612.78, 250.85], [633.84, 261.47], [654.89, 272.46], [675.95, 283.83], [697.0, 295.57], [718.05, 307.68], [739.11, 320.17], [760.16, 333.03], [781.22, 346.26], [802.27, 359.87], [823.32, 373.84], [844.38, 388.2], [865.43, 402.92], [886.48, 418.02], [907.54, 433.49], [928.59, 449.34], [949.65, 465.56], [970.7, 482.15]]}, {"id": 8, "title": "Monthly Sales over the Year", "problem": "A retailer sees festival-season highs, a mid-year slump and a strong year-end rise. Stock planning needs a smooth trend.", "task": "Predict sales for any month number (1 = January).", "xn": "month", "yn": "sales", "xl": "Month number", "yl": "Sales (units)", "note": "Up, down, up (wave)", "csv": "month,sales\n6.0,65.7\n7.0,55.6\n10.0,42.9\n12.0,67.2\n1.0,50.8\n2.0,68.6\n10.0,43.0\n12.0,71.3\n3.0,78.5\n4.0,71.6\n11.0,47.6\n6.0,64.1\n4.0,76.2\n10.0,43.9\n4.0,77.5\n5.0,76.6\n8.0,45.5\n7.0,54.8\n2.0,72.7\n1.0,52.6\n11.0,52.7\n10.0,42.5\n11.0,48.1\n7.0,55.9\n10.0,43.7\n4.0,74.6\n6.0,63.1\n10.0,43.4\n2.0,66.7\n4.0,76.8\n", "deg": 3, "r2": 0.98, "lin": 0.04, "curve": [[1.0, 51.5], [1.28, 57.43], [1.56, 62.49], [1.85, 66.73], [2.13, 70.18], [2.41, 72.91], [2.69, 74.95], [2.97, 76.36], [3.26, 77.18], [3.54, 77.45], [3.82, 77.24], [4.1, 76.57], [4.38, 75.51], [4.67, 74.09], [4.95, 72.37], [5.23, 70.39], [5.51, 68.2], [5.79, 65.85], [6.08, 63.38], [6.36, 60.85], [6.64, 58.29], [6.92, 55.76], [7.21, 53.3], [7.49, 50.96], [7.77, 48.79], [8.05, 46.84], [8.33, 45.15], [8.62, 43.76], [8.9, 42.74], [9.18, 42.12], [9.46, 41.95], [9.74, 42.28], [10.03, 43.15], [10.31, 44.62], [10.59, 46.73], [10.87, 49.53], [11.15, 53.07], [11.44, 57.38], [11.72, 62.53], [12.0, 68.55]]}, {"id": 9, "title": "Temperature vs Electricity Use", "problem": "A power company sees high usage in winter (heaters) and in summer (AC). Mild weather uses the least electricity.", "task": "Predict electricity use from the daily temperature.", "xn": "temperature", "yn": "electricity_kwh", "xl": "Temperature (C)", "yl": "Electricity (kWh)", "note": "U-shaped curve", "csv": "temperature,electricity_kwh\n42.7,608.6\n25.5,306.1\n44.0,632.1\n8.2,543.4\n29.3,328.8\n20.1,334.1\n37.1,473.1\n12.0,410.4\n39.9,510.6\n26.8,302.8\n41.1,577.8\n24.1,317.0\n22.2,288.7\n36.6,429.8\n44.4,657.3\n19.8,304.3\n43.8,646.6\n42.2,594.2\n12.1,468.4\n29.4,315.7\n33.2,370.3\n42.7,624.3\n31.6,333.3\n10.3,460.7\n24.9,301.0\n24.7,316.0\n25.0,274.6\n43.3,664.2\n19.0,315.5\n14.0,394.3\n", "deg": 2, "r2": 0.99, "lin": 0.33, "curve": [[8.2, 534.36], [9.13, 507.9], [10.06, 483.0], [10.98, 459.69], [11.91, 437.95], [12.84, 417.79], [13.77, 399.21], [14.7, 382.2], [15.63, 366.77], [16.55, 352.92], [17.48, 340.65], [18.41, 329.95], [19.34, 320.83], [20.27, 313.29], [21.19, 307.32], [22.12, 302.93], [23.05, 300.12], [23.98, 298.88], [24.91, 299.22], [25.84, 301.14], [26.76, 304.64], [27.69, 309.71], [28.62, 316.36], [29.55, 324.58], [30.48, 334.39], [31.41, 345.77], [32.33, 358.73], [33.26, 373.26], [34.19, 389.37], [35.12, 407.06], [36.05, 426.33], [36.97, 447.17], [37.9, 469.59], [38.83, 493.59], [39.76, 519.16], [40.69, 546.31], [41.62, 575.04], [42.54, 605.35], [43.47, 637.23], [44.4, 670.69]]}, {"id": 10, "title": "Study Hours vs Exam Marks", "problem": "A coaching class studies how marks change with daily study hours. Marks improve, but too many hours cause tiredness.", "task": "What is the best number of daily study hours?", "xn": "study_hours", "yn": "marks", "xl": "Study hours per day", "yl": "Exam marks", "note": "Rises, peaks, then falls", "csv": "study_hours,marks\n6.1,76.4\n11.4,65.7\n1.7,41.1\n11.4,58.5\n3.7,70.6\n5.1,74.8\n9.9,72.4\n4.9,70.5\n6.6,72.7\n0.3,25.7\n9.0,75.1\n6.5,73.8\n4.0,64.0\n9.5,72.7\n3.6,60.8\n5.4,74.2\n1.6,43.2\n4.8,71.8\n2.4,51.0\n3.1,61.2\n9.0,77.6\n3.4,62.3\n5.8,73.4\n11.8,58.1\n11.5,56.6\n8.7,78.6\n6.5,74.3\n3.3,63.8\n1.9,46.7\n11.6,53.5\n", "deg": 2, "r2": 0.92, "lin": -0.13, "curve": [[0.3, 25.71], [0.59, 29.97], [0.89, 34.05], [1.18, 37.94], [1.48, 41.65], [1.77, 45.17], [2.07, 48.52], [2.36, 51.68], [2.66, 54.66], [2.95, 57.45], [3.25, 60.06], [3.54, 62.49], [3.84, 64.74], [4.13, 66.8], [4.43, 68.69], [4.72, 70.39], [5.02, 71.9], [5.31, 73.24], [5.61, 74.39], [5.9, 75.35], [6.2, 76.14], [6.49, 76.74], [6.79, 77.16], [7.08, 77.4], [7.38, 77.45], [7.67, 77.33], [7.97, 77.01], [8.26, 76.52], [8.56, 75.84], [8.85, 74.98], [9.15, 73.94], [9.44, 72.72], [9.74, 71.31], [10.03, 69.72], [10.33, 67.95], [10.62, 65.99], [10.92, 63.85], [11.21, 61.53], [11.51, 59.03], [11.8, 56.34]]}];
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function parse(csv){var L=csv.trim().split('\n'),h=L[0].split(','),r=L.slice(1).map(function(l){return l.split(',').map(Number);});return {h:h,r:r};}
+function chart(e,withCurve){
+var p=parse(e.csv),W=480,H=300,Lm=48,Rm=14,Tm=12,Bm=42;
+var xs=p.r.map(function(a){return a[0];}),ys=p.r.map(function(a){return a[1];});
+var cv=withCurve?e.curve:[];
+var ay=ys.concat(cv.map(function(a){return a[1];}));
+var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs),y0=Math.min.apply(null,ay),y1=Math.max.apply(null,ay);
+var px=(x1-x0)*.05||1,py=(y1-y0)*.08||1;x0-=px;x1+=px;y0-=py;y1+=py;
+function X(v){return Lm+(v-x0)/(x1-x0)*(W-Lm-Rm);}
+function Y(v){return H-Bm-(v-y0)/(y1-y0)*(H-Tm-Bm);}
+var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Scatter plot of '+esc(e.title)+'">';
+for(var i=0;i<=4;i++){var yv=y0+(y1-y0)*i/4,xv=x0+(x1-x0)*i/4;
+s+='<line x1="'+Lm+'" x2="'+(W-Rm)+'" y1="'+Y(yv)+'" y2="'+Y(yv)+'" stroke="var(--bd)"/>';
+s+='<text x="'+(Lm-6)+'" y="'+(Y(yv)+4)+'" font-size="11" text-anchor="end" fill="var(--mu)">'+Math.round(yv*10)/10+'</text>';
+s+='<text x="'+X(xv)+'" y="'+(H-Bm+16)+'" font-size="11" text-anchor="middle" fill="var(--mu)">'+Math.round(xv*10)/10+'</text>';}
+s+='<text x="'+(W/2)+'" y="'+(H-4)+'" font-size="12" text-anchor="middle" fill="var(--mu)">'+esc(e.xl)+'</text>';
+s+='<text transform="translate(12 '+(H/2-10)+') rotate(-90)" font-size="12" text-anchor="middle" fill="var(--mu)">'+esc(e.yl)+'</text>';
+if(withCurve)s+='<polyline fill="none" stroke="#12a67a" stroke-width="3" points="'+cv.map(function(a){return X(a[0]).toFixed(1)+','+Y(a[1]).toFixed(1);}).join(' ')+'"/>';
+p.r.forEach(function(a){s+='<circle cx="'+X(a[0]).toFixed(1)+'" cy="'+Y(a[1]).toFixed(1)+'" r="4.5" fill="#2f5bea" fill-opacity=".85"/>';});
+return s+'</svg>';}
+function code(e){
+var L=['# Example '+e.id+': '+e.title,'import io','import numpy as np','import pandas as pd','import matplotlib.pyplot as plt',
+'from sklearn.model_selection import train_test_split, GridSearchCV','from sklearn.pipeline import make_pipeline',
+'from sklearn.preprocessing import PolynomialFeatures, StandardScaler','from sklearn.linear_model import LinearRegression','',
+'# Step 1: dataset','data = """'+e.csv.trim(),'"""','df = pd.read_csv(io.StringIO(data))','',
+'# Step 2: is it linear? Check the graph','plt.scatter(df["'+e.xn+'"], df["'+e.yn+'"])','plt.xlabel("'+e.xl+'")','plt.ylabel("'+e.yl+'")','plt.show()','',
+'# Step 3: X and y','X = df[["'+e.xn+'"]]','y = df["'+e.yn+'"]','',
+'# Step 4: train / test split','X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)','',
+'# Step 5: select the degree (GridSearchCV tries each degree)','model = make_pipeline(PolynomialFeatures(), StandardScaler(), LinearRegression())',
+'degrees = {"polynomialfeatures__degree": [1, 2, 3, 4, 5, 6, 7, 8]}','search = GridSearchCV(model, degrees, cv=5)','search.fit(X_train, y_train)',
+'print("Best degree:", search.best_params_["polynomialfeatures__degree"])','',
+'# Step 6: result','best = search.best_estimator_','print("Test R2 score:", round(best.score(X_test, y_test), 2))','',
+'x_line = pd.DataFrame({"'+e.xn+'": np.linspace(df["'+e.xn+'"].min(), df["'+e.xn+'"].max(), 100)})',
+'plt.scatter(X, y)','plt.plot(x_line, best.predict(x_line), color="green")','plt.xlabel("'+e.xl+'")','plt.ylabel("'+e.yl+'")','plt.show()'];
+return L.join('\n');}
+function copy(t,b){var ok=function(){var o=b.textContent;b.textContent='Copied';setTimeout(function(){b.textContent=o;},1500);};
+try{navigator.clipboard.writeText(t).then(ok,fb);}catch(x){fb();}
+function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok();}catch(x){}document.body.removeChild(a);}}
+var list=document.getElementById('list'),nav=document.getElementById('nav'),html='',nv='';
+D.forEach(function(e){
+var p=parse(e.csv),rows=p.r.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>';}).join('');
+nv+='<a href="#ex'+e.id+'">'+e.id+'</a>';
+html+='<section class="card" id="ex'+e.id+'"><div class="hd"><span class="no">'+e.id+'</span><h2>'+esc(e.title)+'</h2><span class="chip">'+esc(e.note)+'</span></div>'
++'<div class="lb">Business problem</div><div>'+esc(e.problem)+'</div>'
++'<div class="task"><b>Your task:</b> '+esc(e.task)+'</div>'
++'<div class="g"><div><div class="lb">Dataset (30 rows)</div><div class="tb"><table><tr><th>#</th><th>'+esc(e.xn)+'</th><th>'+esc(e.yn)+'</th></tr>'+rows+'</table></div></div>'
++'<div><div class="lb">Graph: is it linear?</div><div id="ch'+e.id+'">'+chart(e,false)+'</div><div class="leg" id="lg'+e.id+'">Blue dots = data</div></div></div>'
++'<div class="btns"><button data-k="code" data-i="'+e.id+'">Show code</button><button data-k="ans" data-i="'+e.id+'">Show expected result</button></div>'
++'<div class="hid" id="cd'+e.id+'"><div class="row"><button class="cp" data-k="cp" data-i="'+e.id+'">Copy code</button></div><pre><code id="cc'+e.id+'"></code></pre></div>'
++'<div class="hid" id="an'+e.id+'"><div class="ans"><b>Best degree: '+e.deg+'</b><br>Test R² score: <b>'+e.r2.toFixed(2)+'</b> &nbsp;(plain straight line: '+e.lin.toFixed(2)+')<br>'
++(e.deg===1?'The graph is already a straight line, so a plain Linear Regression is enough. No polynomial is needed.':'The data is curved, so a polynomial of degree '+e.deg+' fits better than a straight line.')+'</div></div></section>';});
+list.innerHTML=html;nav.innerHTML=nv;
+D.forEach(function(e){document.getElementById('cc'+e.id).textContent=code(e);});
+list.addEventListener('click',function(ev){var b=ev.target.closest('button');if(!b)return;var k=b.getAttribute('data-k'),i=+b.getAttribute('data-i'),e=D[i-1];
+if(k==='code'){var el=document.getElementById('cd'+i),on=el.classList.toggle('show');b.classList.toggle('on',on);b.textContent=on?'Hide code':'Show code';}
+else if(k==='ans'){var a=document.getElementById('an'+i),on2=a.classList.toggle('show');b.classList.toggle('on',on2);b.textContent=on2?'Hide expected result':'Show expected result';
+document.getElementById('ch'+i).innerHTML=chart(e,on2);document.getElementById('lg'+i).textContent=on2?'Blue dots = data, green line = best polynomial':'Blue dots = data';}
+else if(k==='cp'){copy(code(e),b);}});
+</script>
+</body>
+</html>
